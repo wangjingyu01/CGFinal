@@ -17,6 +17,7 @@ string loadShaderSrc(const char* filePath);
 class Shader
 {
 public:
+    //ÏÈvsÔÙfs
     Shader(const char* vs, const char* fs) 
     {
         this->vs = vs;

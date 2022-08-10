@@ -5,13 +5,14 @@
 #include "stb_image.h"
 #include <iostream>
 
-/*第一个参数：纹理图片路径
-第二个参数：第id个纹理（0开始）
-第三个参数：默认填data*/
-void	texture(const char* texpath, int id, unsigned char* data)
+/*第一个参数：纹理贴图路径
+第二个参数：第id个纹理（0开始）*/
+void	texture(const char* texpath, int id)
 {
 	unsigned int texture;
 	int width, height, nrChannels;
+	static unsigned char* data;//贴图数据指针
+
 	glGenTextures(1, &texture);
 	stbi_set_flip_vertically_on_load(TRUE);
 	glActiveTexture(GL_TEXTURE0 + id);//激活 纹理单元
