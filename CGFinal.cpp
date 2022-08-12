@@ -31,11 +31,13 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);//改�
 void Draw(MeshIndices meshes, Shader shader,mat4 M,vec3 transform = vec3(0, 0, 0),
                 float angle = 0.0f, vec3 axis = vec3(1, 0, 0), vec3 scaleSize = vec3(1, 1, 1));//绘制
 void Import(const std::string& pFile);//导入模型
+int getTexID(vector<string> v, string a);//通过文件的路径找到在vector中的位置
 
 bool mouseCapture = true;//是否获取鼠标
 
 Camera camera(90, 10, 0.1);
 
+string modelPath = "Model/nanosuit/nanosuit.obj";
 
 
 int main()
@@ -48,7 +50,7 @@ int main()
 	glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	Import("Model/ball/prism2-2.obj");
+	Import(modelPath);
 
     //批量导入贴图
     for (int i = 0; i < textures.size(); i++)
@@ -80,8 +82,10 @@ int main()
 
         for (int i = 0; i < Meshes_OK.size(); i++)
         {
-            shader.setInt("t0", 1);
-            Draw(Meshes_OK[i], shader, M,vec3 (i*5,0,0));
+            //cout << mats[Meshes_OK[i].matID].diff;
+            int texID = getTexID(textures,mats[Meshes_OK[i].matID].diff) ;
+            shader.setInt("t0", texID);
+            Draw(Meshes_OK[i], shader, M,vec3 (0,0,0));
         }
 
 
@@ -232,15 +236,16 @@ void Import(const std::string& pFile)
         aiMaterial* mat = scene->mMaterials[i];
         Material tempMat;//临时的mat结构体
         p = &tempMat.diff;
-        for (int j = 0; j < len(texType); j++)
+        for (int j = 0; j < sizeof(texType) / sizeof(texType[0]); j++)
         {
             texPath = "";
             mat->GetTexture(texType[j], 0, &texPath);
             string tex = texPath.C_Str();
+            string directory = pFile.substr(0, pFile.find_last_of('/'));
             if (texPath.length > 0)
             {
-                (*p++) = tex;
-                textures.push_back(tex);
+                (*p++) = directory + '/' +tex;
+                textures.push_back(directory + '/' +tex);
             }
             else
                 (*p++) = defaultTex[j];
