@@ -33,6 +33,7 @@ void	texture(const char* texpath, int id)
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
 		glGenerateMipmap(GL_TEXTURE_2D);
+		std::cout << "导入成功：" << texpath << std::endl;
 	}
 	else
 	{

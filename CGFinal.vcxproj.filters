@@ -56,7 +56,7 @@
     <ClInclude Include="shader.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="vertex.h">
+    <ClInclude Include="ImportData.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="texture.h">
@@ -394,6 +394,15 @@
       <Filter>pic</Filter>
     </Image>
     <Image Include="pic\container2_specular.png">
+      <Filter>pic</Filter>
+    </Image>
+    <Image Include="pic\black.jpg">
+      <Filter>pic</Filter>
+    </Image>
+    <Image Include="pic\normal.jpg">
+      <Filter>pic</Filter>
+    </Image>
+    <Image Include="pic\white.jpg">
       <Filter>pic</Filter>
     </Image>
   </ItemGroup>

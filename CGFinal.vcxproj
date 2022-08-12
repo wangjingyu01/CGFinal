@@ -246,7 +246,7 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="texture.h" />
-    <ClInclude Include="vertex.h" />
+    <ClInclude Include="ImportData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="4.2.texture.fs" />
@@ -267,10 +267,13 @@
   </ItemGroup>
   <ItemGroup>
     <Image Include="pic\awesomeface.png" />
+    <Image Include="pic\black.jpg" />
     <Image Include="pic\container.jpg" />
     <Image Include="pic\container2.png" />
     <Image Include="pic\container2_specular.png" />
     <Image Include="pic\house1.png" />
+    <Image Include="pic\normal.jpg" />
+    <Image Include="pic\white.jpg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

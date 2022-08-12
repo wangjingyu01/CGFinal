@@ -1,17 +1,24 @@
 #pragma once
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include"model.h"
 
-class Vertex {
+
+struct Vertex
+{
+    vec3 Pos;
+    vec3 Normal;
+    vec2 UV;
+};
+
+class ImportData {
 public:
     int sumProp = 0;
     /*第一个参数：顶点数组（填vertices）
-    第二个参数：第一个参数的大小（填sizeof(vertices)）
-    第三个参数：索引数组（填indices）
-    第四个参数：索引数组大小（填sizeof(indsize)）
-    第五个参数：顶点数组每部分有几个数（填prop）
-    第六个参数：顶点数组有几个部分（填propSize)*/
-	Vertex(float vertices[],int versise, int indices[],int indsize, int prop[], int propSize)
+    第二个参数：索引数组（填indices）
+    第三个参数：顶点数组每部分有几个数（填prop）
+    第四个参数：顶点数组有几个部分（填propSize)*/
+    ImportData(vector <Vertex> vertices, vector <unsigned int> indices, int prop[], int propSize)
 	{
         //创建VAO VBO EBO
         unsigned int VBO, VAO, EBO;
@@ -22,9 +29,9 @@ public:
         //绑定
         glBindVertexArray(VAO);
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-        glBufferData(GL_ARRAY_BUFFER, versise, vertices, GL_STATIC_DRAW);//第三个参数是希望画出的数据
+        glBufferData(GL_ARRAY_BUFFER, vertices.size()*sizeof(Vertex), &vertices[0], GL_STATIC_DRAW);//第三个参数是希望画出的数据
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indsize, indices, GL_STATIC_DRAW);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
 
         int* propOffset = new int[propSize];
         int tem=0;
@@ -58,3 +65,4 @@ public:
         glEnableVertexAttribArray(Id);
     }
 };
+
