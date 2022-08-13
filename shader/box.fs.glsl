@@ -13,27 +13,76 @@ struct Material {
     float shininess;
 }; 
 
-struct Light {
-    vec3 position;//灯的位置
-    vec3 ambient;//灯光自发光
-    vec3 color;//灯光颜色
-    vec3 specular;//高光
+
+struct DirectionalLight//平行光
+{
+    vec3 direction;
+    vec3 color;
+};
+
+struct Spotlight//聚光灯 
+{
+    vec3 position;//位置
+    vec3 direction;//方向
+    float outRange;//衰减范围
+    vec3 color;//颜色
+};
+
+struct PointLight//点光源
+{
+    vec3 position;
+    float outRange;
+    vec3 color;
     float lightIntancity;//光照强度
 };
 
-uniform Material m;
-uniform Light l;
 uniform vec3 cameraPos;
+uniform Material m;
 
+uniform DirectionalLight dirLight;
+uniform PointLight pointLight[5];
+uniform Spotlight spotlight;
 
 uniform sampler2D texture_diffuse1;//普通贴图
 uniform sampler2D texture_specular1;//高光贴图
 uniform sampler2D texture_normal1;//法线贴图
 uniform sampler2D texture_height1;//高度贴图
 
+uniform int LightNum;//点光源数量
+
 void main()
 {    
-    vec3 mainTexture=texture(texture_diffuse1,UV).rgb;
+    //点光源
+    vec3 PLight =vec3(0);
+    for(int i=0;i<LightNum;i++)
+    {
+        vec3 LightDir = normalize(pointLight[i].position-posWS);
+        float d=length(pointLight[i].position-posWS);//灯光随距离衰减
+        d =smoothstep(15,0,d);
+        float pointNoL = dot(LightDir, Normal)*d*pointLight[i].lightIntancity;//灯光强度
+        PLight += vec3(pointNoL)*pointLight[i].color;
+    }
+
+    //平行光
+    float dirNoL =dot(-dirLight.direction,Normal);
+    vec3 DLight=vec3(dirNoL)*dirLight.color;
+
+    //聚光灯
+    vec3 spotDir = normalize(spotlight.position - posWS) ;float theta = dot(spotDir,-spotlight.direction);
+    float d=length(spotlight.position-posWS);//灯光随距离衰减
+        d =smoothstep(30,0,d);
+    float spotNoL = dot(spotDir, Normal)*d;
+    float inRange = cos(radians(0.0f));
+    float outRange = cos(radians (30.0f)) ;
+    vec3 SLight = vec3(smoothstep(outRange,inRange, theta)*spotNoL)*spotlight.color;
+
+    vec3 final =vec3(PLight+SLight+DLight)+vec3(0.1,0.2,0.25);
+    FragColor =vec4(DLight,1);
+}
+
+
+
+    /*vec3 mainTexture=texture(texture_diffuse1,UV).rgb;
     vec3 specularTexture=texture(texture_specular1,UV).rgb;
     vec3 LightDir = normalize(l.position-posWS);
     float NoL = dot(LightDir, Normal);
@@ -50,8 +99,7 @@ void main()
     /*float fresnel =1-dot(vDir,Normal);//菲涅尔公式，边缘发光效果
     fresnel=pow(fresnel,2);//效果强度
     使用时在final后面加上 +vec3 (fresnel)*vec3(颜色)
-    */
+   
     vec3 final = (vec3(NoL)*mainTexture*m.diffuse*l.color*l.lightIntancity*(1-specularTexture)+m.emissive+l.ambient)
 +vec3(specular*m.specularIntancity)*m.specular*l.specular*specularTexture*l.lightIntancity;
-FragColor = vec4(final,1);
-}
+FragColor = vec4(final,1);*/

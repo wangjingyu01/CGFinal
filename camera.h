@@ -30,7 +30,8 @@ public:
     float speed;
     float sensitivity;
     vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
-
+    vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
+    bool wanderMode = false;//游览模式
 
     //键盘输入
     void processInput(GLFWwindow* window)
@@ -52,7 +53,7 @@ public:
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
             cameraPos.y += cameraSpeed;
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            cameraPos.y -= cameraSpeed;
+            cameraPos.y -= cameraSpeed;            
     }
 
     //鼠标位置输入
@@ -70,7 +71,12 @@ public:
         lastX = xpos;
         lastY = ypos;
 
-        if (MouseDown)//只有鼠标按下时才能转动摄像机，否则视角会和鼠标一起转
+        if (!wanderMode)//不在游览模式下
+        {
+            if (MouseDown)//只有鼠标按下时才能转动摄像机，否则视角会和鼠标一起转
+                ProcessMouseMovement(xoffset, yoffset);
+        }
+        else
             ProcessMouseMovement(xoffset, yoffset);
     }
 
@@ -122,7 +128,6 @@ public:
     }
 
 private:
-    vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
     vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
     float deltaTime = 0.0f; // 当前帧与上一帧的时间差
     float lastFrame = 0.0f; // 上一帧的时间

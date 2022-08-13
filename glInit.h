@@ -45,7 +45,7 @@ void InitGui(GLFWwindow* window)
 	(void)io;
 	//设置样式：常规
 	ImGui::StyleColorsLight();
-	io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\simhei.ttf", 18.0f,
+	io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\simhei.ttf", 22.0f,
 		NULL, io.Fonts->GetGlyphRangesChineseFull());//添加中文字体，防止显示不出中文
 	//imgui设置平台和渲染
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
