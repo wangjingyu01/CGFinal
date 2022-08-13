@@ -16,12 +16,6 @@ class Camera
 {
 
 public:
-    float fov;
-    float speed;
-    float sensitivity;
-    vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
-
-
     //相机视野、相机速度、鼠标灵敏度、相机位置
     Camera(float fov = 45.0f, float speed = 2.5f, float sensitivity = 0.05f, vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f)) //相机视野、相机速度、鼠标灵敏度
 
@@ -31,6 +25,12 @@ public:
         this->sensitivity = sensitivity;
         this->cameraPos = cameraPos;
     }
+
+    float fov;
+    float speed;
+    float sensitivity;
+    vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
+
 
     //键盘输入
     void processInput(GLFWwindow* window)
@@ -160,4 +160,3 @@ int sizeH()
     int SCR_HEIGHT = dm.dmPelsHeight;
     return SCR_HEIGHT;
 }
-

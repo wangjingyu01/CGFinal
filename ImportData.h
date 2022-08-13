@@ -4,13 +4,6 @@
 #include"model.h"
 
 
-struct Vertex
-{
-    vec3 Pos;
-    vec3 Normal;
-    vec2 UV;
-};
-
 class ImportData {
 public:
     int sumProp = 0;

@@ -2,24 +2,20 @@
 #include <iostream>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-
-//加上自己封装的一些库
+#include "glm/glm.hpp"
+#include"FileSystem.h"
+#include"Mesh.h"
 #include"camera.h"
 #include"model.h"
-#include"shader.h"
-#include"texture.h"
+#include"shader_s.h"
 #include"ImportData.h"
 
-#define print(x) cout << x << endl
-#define len(x) sizeof(x)/sizeof(x[0])
-#define type(x) typeid(x).name ()
-//#define printV3(x)cout<<"("<<x[0]<<","<<x[1]<<","<<x[2]<<")"
-//#tdefine printV2(x)cout<<" ("<<x[0]<<","<<x[1]<<")"
-#define printV3(x) cout<<" ("<<x[0]<<","<<x[1]<<","<<x[2]<<")"
-#define printV2(x) cout<<x[0]<<","<<x[1]
-#define printCol3(x) cout<<" ("<<x.r<<","<<x.g<<","<<x.b<<")"
-#define aiVec3(x) vec3(x[0],x[1],x[2])
-#define aiVec2(x) vec2(x[0],x[1])
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
+
+
+const char* glsl_version = "#version 130";//OpenGL版本号
 
 //(宽，高，标题)
 GLFWwindow* glInit(const int screenWidth, const int screenHeight, const char* title)
@@ -31,6 +27,7 @@ GLFWwindow* glInit(const int screenWidth, const int screenHeight, const char* ti
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	GLFWwindow* window = glfwCreateWindow(screenWidth, screenHeight, title, NULL, NULL);
 	glfwMakeContextCurrent(window);
+
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		std::cout << "Failed to initialize GLAD" << std::endl;
@@ -38,4 +35,19 @@ GLFWwindow* glInit(const int screenWidth, const int screenHeight, const char* ti
 		//return break;
 	}
 	return window;
+}
+
+void InitGui(GLFWwindow* window)
+{
+	//创建imgui上下文
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO();
+	(void)io;
+	//设置样式：常规
+	ImGui::StyleColorsLight();
+	io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\simhei.ttf", 18.0f,
+		NULL, io.Fonts->GetGlyphRangesChineseFull());//添加中文字体，防止显示不出中文
+	//imgui设置平台和渲染
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init(glsl_version);
 }

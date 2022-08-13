@@ -1,98 +1,168 @@
-﻿#include <iostream>
-#include "glm/glm.hpp"
-#include <vector>
-#include "glInit.h"//这里面还包含了很多自己定义的库
-
+﻿#include "glInit.h"//这里面包含了一些头文件和初始化的内容
 
 using namespace std;
 using namespace glm;
 
-struct MeshIndices
-{
-    unsigned int vID;
-    unsigned int offset;
-    unsigned int matID;//材质ID
-};
-struct Material
-{
-    string diff;//颜色贴图
-    string spec;//高光贴图
-    string norm;//法线贴图
-};
-vector <Material> mats;
-vector <string> textures;
-vector<MeshIndices> Meshes_OK;
+Camera camera(90, 10, 0.1);
 
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);//鼠标位置输入
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);//滚轮缩放
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);//鼠标按键输入
 void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods);//键盘输入
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);//改变窗口的大小时，视口也调整
-void Draw(MeshIndices meshes, Shader shader,mat4 M,vec3 transform = vec3(0, 0, 0),
-                float angle = 0.0f, vec3 axis = vec3(1, 0, 0), vec3 scaleSize = vec3(1, 1, 1));//绘制
-void Import(const std::string& pFile);//导入模型
-int getTexID(vector<string> v, string a);//通过文件的路径找到在vector中的位置
 
-bool mouseCapture = true;//是否获取鼠标
+bool mouseCapture = true;//是否能够移动鼠标
+bool isDrawLight = true;//是否绘制灯光的实体
+bool wireframe = false;//线框模式
+vec3 lightPos = vec3(0, 7, 4);//照明位置
+vec3 lightColor = vec3(1, 1, 1);//光照颜色
+float lightIntancity = 5.0f;//光照强度
 
-Camera camera(90, 10, 0.1);
+vec3 cameraPos = camera.cameraPos;
 
-string modelPath = "Model/nanosuit/nanosuit.obj";
-
+string modelPath_man = "Model/nanosuit/nanosuit.obj";
+string modelPath_cube = "Model/cube/cube.obj";
 
 int main()
 {
 	GLFWwindow* window = glInit(sizeW()*0.7, sizeH() * 0.7, "CGFinal");
-	glEnable(GL_DEPTH_TEST);
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetKeyCallback(window, key_callback);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-	Import(modelPath);
+	InitGui(window);
+	//stbi_set_flip_vertically_on_load(false);
+	glEnable(GL_DEPTH_TEST);
+	
+    Shader shader("shader/box.vs.glsl", "shader/box.fs.glsl");
+	Shader skyboxShader("shader/skybox.vs.glsl", "shader/skybox.fs.glsl");
+	Shader lightShader("shader/lightbox.vs.glsl", "shader/lightbox.fs.glsl");
+	
+	Model ModelMan(modelPath_man);
+	Model ModelCube(modelPath_cube);
 
-    //批量导入贴图
-    for (int i = 0; i < textures.size(); i++)
-        texture(textures[i].c_str(), i);
 
-    unsigned char* data;
-    Shader shader("box.vs.glsl", "box.fs.glsl");
-
-    //创建物体
-    MeshIndices box0 = Meshes_OK[0];
     //变换矩阵
     mat4 V = camera.getView();//view
     mat4 P = perspective(radians(camera.fov), float(sizeW() / sizeH()), 0.1f, 100.0f);//projection
 
+	//导入天空盒
+	unsigned int skyboxVAO, skyboxVBO;
+	leadinSkyBox(skyboxVAO, skyboxVBO);//自己封装的一个函数
+	skyboxShader.use();
+	skyboxShader.setInt("t0", 0);
+
 	while (!glfwWindowShouldClose(window))
 	{
+		//创建imgui窗口
+		{
+			ImGui_ImplOpenGL3_NewFrame();
+			ImGui_ImplGlfw_NewFrame();
+			ImGui::NewFrame();
+
+			ImGui::Begin(u8"设置");//离谱 没这个u8显示不出中文。。。
+			ImGui::Text(u8"帧率 (%.1f FPS)", ImGui::GetIO().Framerate);
+			const char* ismove = u8"开";
+			if (mouseCapture)
+				ismove = u8"开";
+			else
+				ismove = u8"关";
+			ImGui::SameLine();
+			ImGui::Text(u8"     鼠标移动：%s （ALT键控制）", ismove);
+
+			if (ImGui::CollapsingHeader(u8"灯光基本设置"))
+			{
+				ImGui::Checkbox(u8"显示点光源位置", &isDrawLight);
+				ImGui::ColorEdit3(u8"光照颜色选择", (float*)&lightColor);
+				ImGui::SliderFloat(u8"光照强度", &lightIntancity, 0.0f, 10.0f);
+				ImGui::SliderFloat(u8"灯光位置（x水平方向上）", &lightPos.x, -10.0f, 10.0f);
+				ImGui::SliderFloat(u8"灯光位置（y垂直方向上）", &lightPos.y, -10.0f, 30.0f);
+				ImGui::SliderFloat(u8"灯光位置（z前后方向上）", &lightPos.z, -10.0f, 10.0f);
+			}
+
+			if (ImGui::CollapsingHeader(u8"场景设置"))
+			{
+				ImGui::Checkbox(u8"以线框模式显示", &wireframe);
+			}
+
+
+			ImGui::End();
+		}
+
 		camera.processInput(window);
 
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//指定清空颜色（背景）
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//指定清空颜色（背景）（有了天空盒就看不见了）
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);//线框模式
 
-        mat4 M;//model
-        V = camera.getView();//view
-        P = perspective(radians(camera.fov), float(sizeW() / sizeH()), 0.1f, 100.0f);//projection
+		P = perspective(radians(camera.fov), float(sizeW() / sizeH()), 0.1f, 100.0f);//projection
 
+		//绘制天空盒
+		V = mat4(mat3(camera.getView()));
+		glDepthFunc(GL_LEQUAL);
+		skyboxShader.use();
+		V = glm::mat4(glm::mat3(camera.getView()));
+		skyboxShader.setMat4("V", V);
+		skyboxShader.setMat4("P", P);
+		glBindVertexArray(skyboxVAO);
+		glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		glDepthFunc(GL_LESS); 
+
+
+		//指定参数 绘制场景
+		V = camera.getView();//view
 		shader.use();
-        shader.setMat4("V", V);
-        shader.setMat4("P", P);
+		mat4 M=mat4(1);
+		//设置light属性
+		shader.setVec3("l.position", lightPos);
+		shader.setVec3("l.ambient", vec3(0));
+		shader.setVec3("l.color", lightColor);//光照颜色
+		shader.setVec3("l.specular", lightColor);//物体上的高光颜色
+		shader.setFloat("l.lightIntancity", lightIntancity);//光照强度
 
-        for (int i = 0; i < Meshes_OK.size(); i++)
-        {
-            //cout << mats[Meshes_OK[i].matID].diff;
-            int texID = getTexID(textures,mats[Meshes_OK[i].matID].diff) ;
-            shader.setInt("t0", texID);
-            Draw(Meshes_OK[i], shader, M,vec3 (0,0,0));
-        }
+		//设置material材质属性
+		shader.setVec3("m.emissive", vec3(0));
+		shader.setVec3("m.diffuse", vec3(1));
+		shader.setVec3("m.specular", vec3(1));
+		shader.setFloat("m.shininess", 128);
+		shader.setFloat("m.specularIntancity", 3);//高光强度
+
+		shader.setVec3("cameraPos", camera.cameraPos);
+		shader.setMat4("M", M);
+		shader.setMat4("V", V);
+		shader.setMat4("P", P);
+		ModelMan.Draw(shader);
 
 
-		glfwPollEvents();
+
+		lightShader.use();
+		M = mat4(1);
+		M = translate(M, lightPos);
+		M = scale(M, vec3(0.2));
+		lightShader.setMat4("M", M);
+		lightShader.setMat4("V", V);
+		lightShader.setMat4("P", P);
+		lightShader.setFloat("lightIntancity", lightIntancity);
+		lightShader.setVec3("lightColor", lightColor);
+		if(isDrawLight)
+			ModelCube.Draw(lightShader);
+
+		//结束绘制
+
+		ImGui::Render();		//imgui渲染
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
 		glfwSwapBuffers(window);//交换画好的缓冲，发送给window
+		glfwPollEvents();
 	}
 	//清理缓存
+	glDeleteVertexArrays(1, &skyboxVAO);
+	glDeleteBuffers(1, &skyboxVBO);
 	glfwTerminate();
 	return 0;
 }
@@ -130,138 +200,4 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
 void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-}
-
-//绘制
-/*第1个参数：
-第2个：
-第3个：变换矩阵M（model）
-第4个：变换矩阵V（view）
-第5个：变换矩阵P（projection）
-第6个：位置
-第7个：旋转角度
-第8个：旋转轴
-第9个：缩放大小
-*/
-void Draw(MeshIndices meshes, Shader shader,
-	mat4 M, vec3 transform , float angle, vec3 axis , vec3 scaleSize )
-{
-	M = translate(M, transform);
-	M = rotate(M, radians(angle), axis);
-	M = scale(M, scaleSize);
-	shader.setMat4("M", M);
-
-	glDrawElements(GL_TRIANGLES, static_cast<unsigned int>(meshes.vID), GL_UNSIGNED_INT, (void*)(meshes.offset * sizeof(float)));
-}
-
-int getTexID(vector<string> v, string a)//通过文件的路径找到在vector中的位置
-{
-    vector<string>::iterator it = find(v.begin(), v.end(), a);//查找是否有字符a
-    if (it != v.end())
-        return std::distance(v.begin(), it);
-    else
-        return -1;
-}
-void Import(const std::string& pFile)
-{
-    Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile(pFile,
-        aiProcess_CalcTangentSpace |
-        aiProcess_Triangulate |
-        aiProcess_JoinIdenticalVertices |
-        aiProcess_SortByPType);
-
-    if (!scene)
-    {
-        cout << importer.GetErrorString();
-    }
-
-    int aiMeshes = scene->mNumMeshes;
-
-    vector <Vertex> vertices;
-    vector <unsigned int> indices;
-
-    int SumVertices = 0;//解决多个物体的indices都是从0开始
-    int SumIndices = 0;
-
-    //获取所有mesh 名
-    for (int i = 0; i < aiMeshes; i++)
-    {
-        aiMesh* mesh = scene->mMeshes[i];
-        cout << mesh->mName.C_Str()<< " : \n" << "顶点数量="<< mesh->mNumVertices;
-
-        for (int i = 0; i < mesh->mNumVertices; i++)
-        {
-            Vertex vertex;
-            vertex.Pos = vec3(mesh->mVertices[i][0], mesh->mVertices[i][1], mesh->mVertices[i][2]);//填充Pos
-            vertex.Normal = vec3(mesh->mNormals[i][0], mesh->mNormals[i][1], mesh->mNormals[i][2]);//填充Normal
-            vertex.UV = vec2(mesh->mTextureCoords[0][i][0], mesh->mTextureCoords[0][i][1]);//填充UV
-            vertices.push_back(vertex);
-        }
-
-        //获取面ID
-        int faces = mesh->mNumFaces;
-        MeshIndices temp_m;
-        temp_m.vID = faces * 3;
-        temp_m.offset = SumIndices;
-        temp_m.matID = mesh->mMaterialIndex;
-        Meshes_OK.push_back(temp_m);
-        for (int i = 0; i < faces; i++)
-        {
-            aiFace face = mesh->mFaces[i];
-            for (int j = 0; j < face.mNumIndices; j++)
-                indices.push_back(face.mIndices[j] + SumVertices);
-        }
-        cout << "=========================" << endl;
-        SumVertices += mesh->mNumVertices;
-        SumIndices += faces * 3;
-    }
-
-    int prop[] = { 3,3,2 };//属性各部分的大小
-    int propSize = sizeof(prop) / sizeof(prop[0]);//总共有几个属性
-    cout << "____________________" << endl;
-    cout << "vertices数量：" << vertices.size() << endl;
-    cout << "indices数量：" << indices.size() << endl;
-
-    ImportData(vertices, indices, prop, propSize);//读取顶点
-
-    //获取贴图
-    aiString texPath;
-    int numMat = scene->mNumMaterials;
-    aiTextureType texType[ ]={ aiTextureType_DIFFUSE ,aiTextureType_SPECULAR,aiTextureType_HEIGHT };
-    string defaultTex[] = { "pic/white.jpg","pic/black.jpg", "pic/normal.jpg" };
-    string* p;
-    for (int i = 0; i < numMat; i++)
-    {
-        aiMaterial* mat = scene->mMaterials[i];
-        Material tempMat;//临时的mat结构体
-        p = &tempMat.diff;
-        for (int j = 0; j < sizeof(texType) / sizeof(texType[0]); j++)
-        {
-            texPath = "";
-            mat->GetTexture(texType[j], 0, &texPath);
-            string tex = texPath.C_Str();
-            string directory = pFile.substr(0, pFile.find_last_of('/'));
-            if (texPath.length > 0)
-            {
-                (*p++) = directory + '/' +tex;
-                textures.push_back(directory + '/' +tex);
-            }
-            else
-                (*p++) = defaultTex[j];
-        }
-        mats.push_back(tempMat);
-    }
-
-    //vector去重
-    vector <string>::iterator it;
-    sort(textures.begin(), textures.end());
-    it = unique(textures.begin(), textures.end());
-    if (it != textures.end())
-        textures.erase(it, textures.end());
-
-    for (int i = 0; i < sizeof(defaultTex) / sizeof(defaultTex[0]); i++) 
-        textures.insert(textures.begin(),defaultTex[sizeof(defaultTex) / sizeof(defaultTex[0])-i-1]);
-    for (int i = 0; i < textures.size(); i++) 
-        print(textures[i]);
 }

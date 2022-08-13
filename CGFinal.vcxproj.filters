@@ -53,13 +53,7 @@
     <ClInclude Include="include\glad\glad.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="shader.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="ImportData.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="texture.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="model.h">
@@ -332,26 +326,20 @@
     <ClInclude Include="glInit.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Mesh.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="shader_s.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="FileSystem.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="box.fs.glsl">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="box.vs.glsl">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="4.2.texture.vs">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="4.2.texture.fs">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="lightbox.fs.glsl">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="lightbox.vs.glsl">
-      <Filter>资源文件</Filter>
-    </None>
     <None Include="include\assimp\color4.inl">
       <Filter>头文件\assimp</Filter>
     </None>
@@ -378,6 +366,24 @@
     </None>
     <None Include="include\assimp\vector3.inl">
       <Filter>头文件\assimp</Filter>
+    </None>
+    <None Include="shader\box.fs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\box.vs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\lightbox.fs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\lightbox.vs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\skybox.fs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\skybox.vs.glsl">
+      <Filter>资源文件</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

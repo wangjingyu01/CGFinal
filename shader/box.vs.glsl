@@ -5,14 +5,17 @@ layout (location = 2) in vec2 aUv;
 
 out vec2 UV;
 out vec3 Normal;
+out vec3 posWS;//world position ->WS
 
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
+uniform vec3 cameraPos;
 
 void main()
 {
-    gl_Position =  P*V*M*vec4(aPos, 1.0);
-    Normal=aNormal;
-    UV=aUv;
+    gl_Position = P*V*M * vec4(aPos, 1.0);
+    posWS=(M*vec4(aPos,1.0)).xyz;
+    UV = aUv;    
+    Normal = mat3(transpose(inverse(M))) * aNormal;//生成法线矩阵
 }
