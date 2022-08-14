@@ -8,5 +8,5 @@ uniform int LightNum;
 
 void main()
 {
-	FragColor = vec4(lightColor*lightIntancity,1);
+	FragColor = vec4(lightColor*lightIntancity/3,1);
 }

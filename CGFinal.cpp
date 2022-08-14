@@ -16,9 +16,17 @@ bool isDrawLight = true;//是否绘制灯光的实体
 bool wireframe = false;//线框模式
 int LightNum = 3;//设置点光源的数量
 int lightControl = 0;//在控制第几盏灯
-vec3 lightPos[] = { vec3(3,3,3),vec3(3,13,3),vec3(-3,3,3),vec3(-3,13,3),vec3(3,13,-6) };//照明位置
-vec3 lightColor[] = { vec3(0.9, 0, 0),vec3(0, 0.9, 0),vec3(0, 0, 0.9),vec3(1, 0, 1),vec3(1, 1, 1), };//光照颜色
-float lightIntancity[] = { 1,2,3,4.5 };//光照强度
+
+bool isPointLight = true;//是否启用点光源
+bool isDirectionalLight = false;//是否启用平行光
+bool isSpotlight = false;//是否启用聚光灯
+
+vec3 PointlightPos[] = { vec3(3,15,5) ,vec3(3,13,3),vec3(-6,5,3),vec3(-3,13,3),vec3(3,13,-10) };//点光源位置
+vec3 PointlightColor[] = { vec3(1, 1, 1),vec3(0.8, 0.8, 0),vec3(1, 0.5, 0.5),vec3(1, 0, 1),vec3(1, 1, 1), };//点光源颜色
+float PointlightIntancity[] = { 4 ,3 ,3.5 ,2.5 ,4.5 };//点光源光照强度
+vec3 DirectionalLightPos = vec3(1, 1, 1);//平行光方向
+vec3 DirectionalLightColor = vec3(1, 1, 1);//平行光颜色
+
 
 vec3 cameraPos = camera.cameraPos;
 
@@ -76,34 +84,49 @@ int main()
 
 			if (ImGui::CollapsingHeader(u8"灯光基本设置"))
 			{
-				ImGui::Checkbox(u8"显示点光源位置", &isDrawLight);
-				ImGui::Checkbox(u8"漫游模式（空格键控制）", &camera.wanderMode);
-				{//设置点光源数量
-					if (ImGui::Button(u8"增加点光源") && LightNum <= 4)
-						LightNum++;
-					ImGui::SameLine();
-					if (ImGui::Button(u8"减少点光源") && LightNum > 1)
-						LightNum--;
-					ImGui::SameLine();
-					ImGui::Text(u8"光源数： %d", LightNum);
-				}
-				//有几盏灯就有几个选项
-				if (LightNum >= 1) ImGui::RadioButton(u8"控制第一盏灯", &lightControl, 0);
-				if (LightNum >= 2) ImGui::RadioButton(u8"控制第二盏灯", &lightControl, 1);
-				if (LightNum >= 3) ImGui::RadioButton(u8"控制第三盏灯", &lightControl, 2);
-				if (LightNum >= 4) ImGui::RadioButton(u8"控制第四盏灯", &lightControl, 3);
-				if (LightNum >= 5) ImGui::RadioButton(u8"控制第五盏灯", &lightControl, 4);
+				ImGui::Checkbox(u8"启用点光源", &isPointLight);
+				ImGui::Checkbox(u8"启用平行光", &isDirectionalLight);
+				ImGui::Checkbox(u8"启用聚光灯", &isSpotlight);
 
-				ImGui::ColorEdit3(u8"光照颜色选择", (float*)&lightColor[lightControl]);
-				ImGui::SliderFloat(u8"光照强度", &lightIntancity[lightControl], 0.0f, 10.0f);
-				ImGui::SliderFloat(u8"灯光位置（x水平方向上）", &lightPos[lightControl].x, -10.0f, 10.0f);
-				ImGui::SliderFloat(u8"灯光位置（y垂直方向上）", &lightPos[lightControl].y, -10.0f, 30.0f);
-				ImGui::SliderFloat(u8"灯光位置（z前后方向上）", &lightPos[lightControl].z, -10.0f, 10.0f);
+				if (isPointLight && ImGui::TreeNode(u8"点光源设置"))
+				{
+					ImGui::Checkbox(u8"显示点光源位置", &isDrawLight);
+					{//设置点光源数量
+						if (ImGui::Button(u8"增加点光源") && LightNum <= 4)
+							LightNum++;
+						ImGui::SameLine();
+						if (ImGui::Button(u8"减少点光源") && LightNum > 1)
+							LightNum--;
+						ImGui::SameLine();
+						ImGui::Text(u8"光源数： %d", LightNum);
+					}
+					//有几盏灯就有几个选项
+					if (LightNum >= 1) ImGui::RadioButton(u8"控制第一盏灯", &lightControl, 0);
+					if (LightNum >= 2) ImGui::RadioButton(u8"控制第二盏灯", &lightControl, 1);
+					if (LightNum >= 3) ImGui::RadioButton(u8"控制第三盏灯", &lightControl, 2);
+					if (LightNum >= 4) ImGui::RadioButton(u8"控制第四盏灯", &lightControl, 3);
+					if (LightNum >= 5) ImGui::RadioButton(u8"控制第五盏灯", &lightControl, 4);
+
+					ImGui::ColorEdit3(u8"光照颜色选择", (float*)&PointlightColor[lightControl]);
+					ImGui::SliderFloat(u8"光照强度", &PointlightIntancity[lightControl], 0.0f, 10.0f);
+					ImGui::SliderFloat(u8"灯光位置（x水平方向上）", &PointlightPos[lightControl].x, -10.0f, 10.0f);
+					ImGui::SliderFloat(u8"灯光位置（y垂直方向上）", &PointlightPos[lightControl].y, -10.0f, 30.0f);
+					ImGui::SliderFloat(u8"灯光位置（z前后方向上）", &PointlightPos[lightControl].z, -10.0f, 10.0f);
+				}
+				if (isDirectionalLight && ImGui::TreeNode(u8"平行光光源设置"))
+				{
+					ImGui::SliderFloat(u8"灯光方向（x）", &DirectionalLightPos.x, -1, 1);
+					ImGui::SliderFloat(u8"灯光方向（y）", &DirectionalLightPos.y, -1, 1);
+					ImGui::SliderFloat(u8"灯光方向（z）", &DirectionalLightPos.z, -1, 1);
+					ImGui::ColorEdit3(u8"灯光颜色", (float*)&DirectionalLightColor);
+				}
+
 			}
 
 			if (ImGui::CollapsingHeader(u8"场景设置"))
 			{
 				ImGui::Checkbox(u8"以线框模式显示", &wireframe);
+				ImGui::Checkbox(u8"漫游模式（空格键控制）", &camera.wanderMode);
 			}
 
 
@@ -115,7 +138,7 @@ int main()
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);//指定清空颜色（背景）（有了天空盒就看不见了）
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glPolygonMode(GL_FRONT_AND_BACK, wireframe ? GL_LINE : GL_FILL);//线框模式
-		if(camera.wanderMode)
+		if (camera.wanderMode)
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);//隐藏鼠标
 		else
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);//显示鼠标
@@ -139,31 +162,64 @@ int main()
 		//指定参数 绘制场景
 		V = camera.getView();//view
 		shader.use();
+		shader.setBool("isPointLight", isPointLight);
+		shader.setBool("isDirectionalLight", isDirectionalLight);
+		shader.setBool("isSpotlight", isSpotlight);
+
 		mat4 M = mat4(1);
 
 		//设置 平行光 DirectionalLight属性
-
-		shader.setVec3("dirLight.direction",-lightPos[0]);
-		shader.setVec3("dirLight.color",lightColor[0]);
+		if (isDirectionalLight)//开启平行光，就给参数
+		{
+			shader.setVec3("dirLight.direction", -DirectionalLightPos);
+			shader.setVec3("dirLight.color", DirectionalLightColor);
+		}
+		else//不开就给0
+		{
+			shader.setVec3("dirLight.direction", vec3(0, 0, 0));
+			shader.setVec3("dirLight.color", vec3(0, 0, 0));
+		}
 
 		//设置 点光源 PointLight属性
-		
-		for (int i = 0; i < LightNum; i++)
-		{
-			string strpos, strcol, strint,stri;
-			stri = to_string(i);
-			strpos = "pointLight[" +stri+ "].position";
-			strcol = "pointLight[" + stri + "].color";
-			strint = "pointLight[" + stri + "].lightIntancity";
-			shader.setVec3(strpos, lightPos[i]);
-			shader.setVec3(strcol, lightColor[i]);
-			shader.setFloat(strint, lightIntancity[i]);
-		}
+
 		shader.setInt("LightNum", LightNum);
+		if (isPointLight)
+		{
+			for (int i = 0; i < LightNum; i++)
+			{
+				string strpos, strcol, strint, strspe, stri;
+				stri = to_string(i);
+				strpos = "pointLight[" + stri + "].position";
+				strspe = "pointLight[" + stri + "].specular";
+				strcol = "pointLight[" + stri + "].color";
+				strint = "pointLight[" + stri + "].lightIntancity";
+				shader.setVec3(strpos, PointlightPos[i]);
+				shader.setVec3(strspe, PointlightColor[i]);
+				shader.setVec3(strcol, PointlightColor[i]);
+				shader.setFloat(strint, PointlightIntancity[i]);
+			}
+		}
+		else
+		{
+			for (int i = 0; i < LightNum; i++)
+			{
+				string strpos, strcol, strint, strspe, stri;
+				stri = to_string(i);
+				strpos = "pointLight[" + stri + "].position";
+				strspe = "pointLight[" + stri + "].specular";
+				strcol = "pointLight[" + stri + "].color";
+				strint = "pointLight[" + stri + "].lightIntancity";
+				shader.setVec3(strpos, vec3(0, 0, 0));
+				shader.setVec3(strspe, vec3(0, 0, 0));
+				shader.setVec3(strcol, vec3(0, 0, 0));
+				shader.setFloat(strint, 0);
+			}
+		}
+
 		//设置 聚光灯 SpotLight属性
 		shader.setVec3("spotlight.position", camera.cameraPos);
 		shader.setVec3("spotlight.direction", camera.cameraFront);
-		shader.setVec3("spotlight.color", vec3(1,232.0f/255.0f,0));
+		shader.setVec3("spotlight.color", vec3(1, 232.0f / 255.0f, 0));
 
 
 
@@ -180,19 +236,19 @@ int main()
 		shader.setMat4("P", P);
 		ModelMan.Draw(shader);
 
-
+		//画表示灯光的盒子
 		for (int i = 0; i < LightNum; i++)
 		{
 			lightShader.use();
 			M = mat4(1);
-			M = translate(M, lightPos[i]);
+			M = translate(M, PointlightPos[i]);
 			M = scale(M, vec3(0.2));
 			lightShader.setMat4("M", M);
 			lightShader.setMat4("V", V);
 			lightShader.setMat4("P", P);
-			lightShader.setFloat("lightIntancity", lightIntancity[i]);
-			lightShader.setVec3("lightColor", lightColor[i]);
-			if (isDrawLight)
+			lightShader.setFloat("lightIntancity", PointlightIntancity[i]);
+			lightShader.setVec3("lightColor", PointlightColor[i]);
+			if (isDrawLight && isPointLight)
 				ModelCube.Draw(lightShader);
 		}
 
@@ -221,7 +277,8 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 //滚轮
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-	camera.mouseScroll(yoffset);
+	if (mouseCapture)
+		camera.mouseScroll(yoffset);
 }
 //鼠标按键
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
@@ -241,3 +298,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
+
+
+
+
+
+
