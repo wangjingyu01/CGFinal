@@ -6,35 +6,35 @@ in vec3 posWS;
 in vec2 UV;
 
 struct Material {//物体自身性质
-	vec3 emissive;//自发光
-	vec3 diffuse;//物体颜色
-	vec3 specular;//高光
-	float specularIntancity;//高光强度
-	float shininess;
+    vec3 emissive;//自发光
+    vec3 diffuse;//物体颜色
+    vec3 specular;//高光
+    float specularIntancity;//高光强度
+    float shininess;
 };
 
 
 struct DirectionalLight//平行光
 {
-	vec3 direction;
-	vec3 color;
+    vec3 direction;
+    vec3 color;
 };
 
 struct Spotlight//聚光灯 
 {
-	vec3 position;//位置
-	vec3 direction;//方向
-	float outRange;//衰减范围
-	vec3 color;//颜色
+    vec3 position;//位置
+    vec3 direction;//方向
+    vec3 color;//颜色
+    float lightIntancity;//光照强度
 };
 
 struct PointLight//点光源
 {
-	vec3 specular;
-	vec3 position;
-	float outRange;
-	vec3 color;
-	float lightIntancity;//光照强度
+    vec3 specular;
+    vec3 position;
+    float outRange;
+    vec3 color;
+    float lightIntancity;
 };
 
 uniform vec3 cameraPos;
@@ -42,10 +42,10 @@ uniform Material m;
 
 uniform DirectionalLight dirLight;
 uniform PointLight pointLight[5];
-uniform Spotlight spotlight;
+uniform Spotlight spotLight;
 
-uniform bool isPointLight;
 uniform bool isDirectionalLight;
+uniform bool isPointLight;
 uniform bool isSpotlight;
 
 uniform sampler2D texture_diffuse;//普通贴图
@@ -58,92 +58,89 @@ uniform int LightNum;//点光源数量
 
 void main()
 {
-	//点光源
-	vec3 PLight = vec3(0);
-	vec3 result =vec3 (0);
-	if (isPointLight)//不判断也行，优化性能的操作，省的不开点光源也算一堆东西
-	{
-		for (int i = 0; i < LightNum; i++)
-		{
-//			vec3 LightDir = normalize(pointLight[i].position - posWS);
-//			float d = length(pointLight[i].position - posWS);//灯光随距离衰减
-//			d = smoothstep(15, 0, d);
-//			float pointNoL = dot(LightDir, Normal) * d * pointLight[i].lightIntancity;//灯光强度
-//			PLight += vec3(pointNoL) * pointLight[i].color;
-	// ambient
-    vec3 ambient = 0.2 * texture(texture_diffuse, UV).rgb;
-    // diffuse 
-    vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(pointLight[i].position);  
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = pointLight[i].color * diff *pointLight[i].lightIntancity* texture(texture_diffuse, UV).rgb;  
-    // specular
-    vec3 viewDir = normalize(cameraPos - posWS);
-    vec3 reflectDir = reflect(-lightDir, norm);  
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), m.shininess);
-    vec3 specular = pointLight[i].specular * spec * texture(texture_specular, UV).rgb;  
+    vec3 result = vec3(0);
+    //平行光
+    vec3 DLight = vec3(0);
+    if (isDirectionalLight)//不判断也行，优化性能的操作，省的不开也算一堆东西
+    {
+        vec3 ambient = 0.2 * texture(texture_diffuse, UV).rgb;
+        // diffuse 
+        vec3 norm = normalize(Normal);
+        vec3 lightDir = normalize(-dirLight.direction);  
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = dirLight.color * diff *2* texture(texture_diffuse, UV).rgb;  
+        // specular
+        vec3 viewDir = normalize(cameraPos - posWS);
+        vec3 reflectDir = reflect(-lightDir, norm);  
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), m.shininess);
+        vec3 specular = dirLight.color * spec * texture(texture_specular, UV).rgb;  
         
-    result += (ambient + diffuse + specular);
-		}
-	}
+        result += ambient + diffuse + specular;
+    }
 
 
-	//平行光
-	vec3 DLight = vec3(0);
-	if (isDirectionalLight)
-	{
-		float dirNoL = dot(-dirLight.direction, Normal);
-		DLight = vec3(dirNoL) * dirLight.color;
-	}
+    //点光源
+    vec3 PLight = vec3(0);
+    if (isPointLight)
+    {
+        for (int i = 0; i < LightNum; i++)
+        {
+            // ambient
+            vec3 ambient = 0.2 * texture(texture_diffuse, UV).rgb;
+
+            // diffuse 
+            vec3 norm = normalize(Normal);
+            vec3 lightDir = normalize(pointLight[i].position - posWS);
+            float diff = max(dot(norm, lightDir), 0.0);
+            vec3 diffuse = pointLight[i].color * 2 * diff * texture(texture_diffuse, UV).rgb;
+
+            // specular
+            vec3 viewDir = normalize(cameraPos - posWS);
+            vec3 reflectDir = reflect(-lightDir, norm);
+            float spec = pow(max(dot(viewDir, reflectDir), 0.0), m.shininess);
+            vec3 specular = pointLight[i].specular * spec * texture(texture_specular, UV).rgb;
+
+            //灯光随距离衰减（这里就用个高级点的二次项的好了hhh）
+            float distance = length(pointLight[i].position - posWS);
+            float attenuation = 1.0 / (1 + 0.09f * distance + 0.032f * (distance * distance));
+            result +=(ambient + diffuse + specular)*vec3(attenuation)*vec3(pointLight[i].lightIntancity);
+        }
+    }
 
 
-	//聚光灯
-	vec3 SLight = vec3(0);
-	if (isSpotlight)
-	{
-		vec3 spotDir = normalize(spotlight.position - posWS);
-		float theta = dot(spotDir, -spotlight.direction);
-		float d = length(spotlight.position - posWS);//灯光随距离衰减
-		d = smoothstep(30, 0, d);
-		float spotNoL = dot(spotDir, Normal) * d;
-		float inRange = cos(radians(0.0f));
-		float outRange = cos(radians(30.0f));
-		vec3 SLight = vec3(smoothstep(outRange, inRange, theta) * spotNoL) * spotlight.color;
-	}
-	vec3 MultiLightFinal = vec3(PLight + SLight + DLight);
 
+    //聚光灯
+   vec3 SLight = vec3(0);
+    if (isSpotlight)
+    {
+        // ambient
+        vec3 ambient = 0.2 * texture(texture_diffuse, UV).rgb;
 
-	vec3 MaterialFinal = vec3(0);
-	if (isPointLight)
-	{
-		for (int i = 0; i < LightNum; i++)
-		{
-			vec3 mainTexture = texture(texture_diffuse, UV).rgb;
-			vec3 specularTexture = texture(texture_specular, UV).rgb;
-			vec3 LightDir = normalize(pointLight[i].position - posWS);
-			float NoL = dot(LightDir, Normal);
-			NoL = max(0, NoL);
-			//NoL=NoL*0.5+0.5;//半兰伯特光照模型（阴影部分没那么暗）
-			//NoL=step(0.5, NoL);//卡通渲染（step函数意为小于0.5部分为0，大于0.5为1），使光影更硬
+        // diffuse 
+        vec3 norm = normalize(Normal);
+        vec3 lightDir = normalize(cameraPos - posWS);
+        float diff = max(dot(norm, lightDir), 0.0);
+        vec3 diffuse = 2 * diff * texture(texture_diffuse, UV).rgb;
 
-			// Specular
-			vec3 rDir = reflect(-LightDir, Normal);//反射方向
-			vec3 vDir = normalize(cameraPos - posWS);//视角方向
-			float specular = max(0, dot(vDir, rDir));
-			specular = pow(specular, m.shininess);
+        // specular
+        vec3 viewDir = normalize(cameraPos - posWS);
+        vec3 reflectDir = reflect(-lightDir, norm);
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), m.shininess);
+        vec3 specular = spotLight.color * spec * texture(texture_specular, UV).rgb;
 
-			/*float fresnel =1-dot(vDir,Normal);//菲涅尔公式，边缘发光效果
-		fresnel=pow(fresnel,2);//效果强度
-		使用时在final后面加上 +vec3 (fresnel)*vec3(颜色)*/
+        // spotlight (soft edges)
+        float theta = dot(lightDir, normalize(-spotLight.direction));
+        float epsilon = (cos(radians(12.5f)) - cos(radians(17.5f)));
+        float intensity = clamp((theta - cos(radians(17.5f))) / epsilon, 0.0, 1.0);
+        diffuse *= intensity;
+        specular *= intensity;
 
-			vec3 PointLightFinal = (vec3(NoL) * mainTexture * m.diffuse * pointLight[i].color
-				* pointLight[i].lightIntancity * (1 - specularTexture) + m.emissive)
-				+ vec3(specular * m.specularIntancity) * m.specular * pointLight[i].specular * specularTexture * pointLight[i].lightIntancity;//点光源
+        // 衰减（这里就用个二次项的吧）
+         float d = length(cameraPos - posWS);
+    	 d = smoothstep(35, 0, d) * 3 *spotLight.lightIntancity;
+         result += (ambient + diffuse + specular)*vec3(d);
+    }
 
-
-			MaterialFinal += vec3(PointLightFinal);
-		}
-	}
-		FragColor = vec4(result, 1);
+FragColor = vec4(result, 1);
 
 }

@@ -17,15 +17,16 @@ bool wireframe = false;//线框模式
 int LightNum = 3;//设置点光源的数量
 int lightControl = 0;//在控制第几盏灯
 
-bool isPointLight = true;//是否启用点光源
 bool isDirectionalLight = false;//是否启用平行光
+bool isPointLight = true;//是否启用点光源
 bool isSpotlight = false;//是否启用聚光灯
 
-vec3 PointlightPos[] = { vec3(3,15,5) ,vec3(3,13,3),vec3(-6,5,3),vec3(-3,13,3),vec3(3,13,-10) };//点光源位置
-vec3 PointlightColor[] = { vec3(1, 1, 1),vec3(0.8, 0.8, 0),vec3(1, 0.5, 0.5),vec3(1, 0, 1),vec3(1, 1, 1), };//点光源颜色
-float PointlightIntancity[] = { 4 ,3 ,3.5 ,2.5 ,4.5 };//点光源光照强度
 vec3 DirectionalLightPos = vec3(1, 1, 1);//平行光方向
 vec3 DirectionalLightColor = vec3(1, 1, 1);//平行光颜色
+vec3 PointlightPos[] = { vec3(5,15,5) ,vec3(3,7,3),vec3(-6,5,3),vec3(-3,13,3),vec3(3,13,-10) };//点光源位置
+vec3 PointlightColor[] = { vec3(1, 1, 1),vec3(0.8, 0.8, 0),vec3(1, 0.5, 0.5),vec3(1, 0, 1),vec3(1, 1, 1), };//点光源颜色
+float PointlightIntancity[] = { 4 ,3 ,3.5 ,2.5 ,4.5 };//点光源光照强度
+float SpotLightIntancity = 1;
 
 
 vec3 cameraPos = camera.cameraPos;
@@ -113,14 +114,15 @@ int main()
 					ImGui::SliderFloat(u8"灯光位置（y垂直方向上）", &PointlightPos[lightControl].y, -10.0f, 30.0f);
 					ImGui::SliderFloat(u8"灯光位置（z前后方向上）", &PointlightPos[lightControl].z, -10.0f, 10.0f);
 				}
-				if (isDirectionalLight && ImGui::TreeNode(u8"平行光光源设置"))
+				if (isDirectionalLight && ImGui::TreeNode(u8"平行光设置"))
 				{
+					ImGui::ColorEdit3(u8"灯光颜色", (float*)&DirectionalLightColor); 
 					ImGui::SliderFloat(u8"灯光方向（x）", &DirectionalLightPos.x, -1, 1);
 					ImGui::SliderFloat(u8"灯光方向（y）", &DirectionalLightPos.y, -1, 1);
 					ImGui::SliderFloat(u8"灯光方向（z）", &DirectionalLightPos.z, -1, 1);
-					ImGui::ColorEdit3(u8"灯光颜色", (float*)&DirectionalLightColor);
 				}
-
+				if (isSpotlight && ImGui::TreeNode(u8"聚光灯设置"))
+					ImGui::SliderFloat(u8"光照强度", &SpotLightIntancity, 0, 5);
 			}
 
 			if (ImGui::CollapsingHeader(u8"场景设置"))
@@ -128,7 +130,6 @@ int main()
 				ImGui::Checkbox(u8"以线框模式显示", &wireframe);
 				ImGui::Checkbox(u8"漫游模式（空格键控制）", &camera.wanderMode);
 			}
-
 
 			ImGui::End();
 		}
@@ -217,9 +218,17 @@ int main()
 		}
 
 		//设置 聚光灯 SpotLight属性
-		shader.setVec3("spotlight.position", camera.cameraPos);
-		shader.setVec3("spotlight.direction", camera.cameraFront);
-		shader.setVec3("spotlight.color", vec3(1, 232.0f / 255.0f, 0));
+		if (isSpotlight)
+		{
+			shader.setVec3("spotLight.position", camera.cameraPos);
+			shader.setVec3("spotLight.direction", camera.cameraFront);
+			shader.setVec3("spotLight.color", vec3(1, 232.0f / 255.0f, 0));
+			shader.setFloat("spotLight.lightIntancity", SpotLightIntancity);
+		}
+		else
+		{
+			shader.setVec3("spotLight.color", vec3(0));
+		}
 
 
 
