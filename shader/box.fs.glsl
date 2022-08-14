@@ -54,7 +54,7 @@ uniform sampler2D texture_normal;//法线贴图
 uniform sampler2D texture_height;//高度贴图
 
 uniform int LightNum;//点光源数量
-
+uniform int style;//显示效果
 
 void main()
 {
@@ -67,7 +67,13 @@ void main()
         // diffuse 
         vec3 norm = normalize(Normal);
         vec3 lightDir = normalize(-dirLight.direction);  
-        float diff = max(dot(norm, lightDir), 0.0);
+        float diff =dot(norm, lightDir);
+        switch (style)
+        {
+          case 1 :  diff=diff/2+0.5;break;//半兰伯特光照模型（阴影部分没那么暗）
+          case 2 :  diff=step(0.5, diff);break;//卡通渲染（step函数意为小于0.5部分为0，大于0.5为1），使光影更硬
+          default : break;//正常
+        }
         vec3 diffuse = dirLight.color * diff *2* texture(texture_diffuse, UV).rgb;  
         // specular
         vec3 viewDir = normalize(cameraPos - posWS);
@@ -76,6 +82,13 @@ void main()
         vec3 specular = dirLight.color * spec * texture(texture_specular, UV).rgb;  
         
         result += ambient + diffuse + specular;
+        float fresnel=0;
+        if(style==3)
+        {
+            fresnel =1-dot(viewDir,Normal);//菲涅尔公式，边缘发光效果
+            fresnel=pow(fresnel,2);//效果强度
+            result+=vec3 (fresnel)*vec3(0,1,0);//绿色边缘
+        }
     }
 
 
@@ -91,7 +104,13 @@ void main()
             // diffuse 
             vec3 norm = normalize(Normal);
             vec3 lightDir = normalize(pointLight[i].position - posWS);
-            float diff = max(dot(norm, lightDir), 0.0);
+            float diff =dot(norm, lightDir);
+            switch (style)
+            {
+            case 1 :  diff=diff/2+0.5;break;
+            case 2 :  diff=step(0.5, diff);break;
+            default : break;
+            }
             vec3 diffuse = pointLight[i].color * 2 * diff * texture(texture_diffuse, UV).rgb;
 
             // specular
@@ -104,6 +123,14 @@ void main()
             float distance = length(pointLight[i].position - posWS);
             float attenuation = 1.0 / (1 + 0.09f * distance + 0.032f * (distance * distance));
             result +=(ambient + diffuse + specular)*vec3(attenuation)*vec3(pointLight[i].lightIntancity);
+            float fresnel=0;
+            if(style==3)
+            {
+                fresnel =1-dot(viewDir,Normal);//菲涅尔公式，边缘发光效果
+                fresnel=pow(fresnel,2);//效果强度
+                result+=vec3 (fresnel)*vec3(0,1,0);
+            }
+
         }
     }
 
@@ -119,7 +146,13 @@ void main()
         // diffuse 
         vec3 norm = normalize(Normal);
         vec3 lightDir = normalize(cameraPos - posWS);
-        float diff = max(dot(norm, lightDir), 0.0);
+        float diff =dot(norm, lightDir);
+        switch (style)
+        {
+          case 1 :  diff=diff/2+0.5;break;
+          case 2 :  diff=step(0.5, diff);break;
+          default : break;
+        }
         vec3 diffuse = 2 * diff * texture(texture_diffuse, UV).rgb;
 
         // specular
@@ -139,6 +172,13 @@ void main()
          float d = length(cameraPos - posWS);
     	 d = smoothstep(35, 0, d) * 3 *spotLight.lightIntancity;
          result += (ambient + diffuse + specular)*vec3(d);
+         float fresnel=0;
+         if(style==3)
+         {
+            fresnel =1-dot(viewDir,Normal);//菲涅尔公式，边缘发光效果
+            fresnel=pow(fresnel,2);//效果强度
+            result+=vec3 (fresnel)*vec3(0,1,0);
+         }
     }
 
 FragColor = vec4(result, 1);

@@ -20,6 +20,7 @@ int lightControl = 0;//在控制第几盏灯
 bool isDirectionalLight = false;//是否启用平行光
 bool isPointLight = true;//是否启用点光源
 bool isSpotlight = false;//是否启用聚光灯
+int style = 0;//一些有意思的光照效果（半兰伯特光照模型、卡通渲染、菲涅尔效果）
 
 vec3 DirectionalLightPos = vec3(1, 1, 1);//平行光方向
 vec3 DirectionalLightColor = vec3(1, 1, 1);//平行光颜色
@@ -27,7 +28,6 @@ vec3 PointlightPos[] = { vec3(5,15,5) ,vec3(3,7,3),vec3(-6,5,3),vec3(-3,13,3),ve
 vec3 PointlightColor[] = { vec3(1, 1, 1),vec3(0.8, 0.8, 0),vec3(1, 0.5, 0.5),vec3(1, 0, 1),vec3(1, 1, 1), };//点光源颜色
 float PointlightIntancity[] = { 4 ,3 ,3.5 ,2.5 ,4.5 };//点光源光照强度
 float SpotLightIntancity = 1;
-
 
 vec3 cameraPos = camera.cameraPos;
 
@@ -86,8 +86,13 @@ int main()
 			if (ImGui::CollapsingHeader(u8"灯光基本设置"))
 			{
 				ImGui::Checkbox(u8"启用点光源", &isPointLight);
-				ImGui::Checkbox(u8"启用平行光", &isDirectionalLight);
-				ImGui::Checkbox(u8"启用聚光灯", &isSpotlight);
+				ImGui::SameLine();    ImGui::Checkbox(u8"启用平行光", &isDirectionalLight);
+				ImGui::SameLine();    ImGui::Checkbox(u8"启用聚光灯", &isSpotlight);
+
+				ImGui::RadioButton(u8"普通效果", &style, 0);
+				ImGui::SameLine();  ImGui::RadioButton(u8"半兰伯特效果", &style, 1);
+				ImGui::SameLine();  ImGui::RadioButton(u8"卡通渲染", &style, 2);
+				ImGui::SameLine();  ImGui::RadioButton(u8"菲涅尔效果", &style, 3);
 
 				if (isPointLight && ImGui::TreeNode(u8"点光源设置"))
 				{
@@ -166,7 +171,7 @@ int main()
 		shader.setBool("isPointLight", isPointLight);
 		shader.setBool("isDirectionalLight", isDirectionalLight);
 		shader.setBool("isSpotlight", isSpotlight);
-
+		shader.setInt("style", style);
 		mat4 M = mat4(1);
 
 		//设置 平行光 DirectionalLight属性
@@ -307,9 +312,5 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
 }
-
-
-
-
 
 
