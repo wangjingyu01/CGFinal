@@ -53,7 +53,7 @@ public:
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
             cameraPos.y += cameraSpeed;
         if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-            cameraPos.y -= cameraSpeed;            
+            cameraPos.y -= cameraSpeed;
     }
 
     //鼠标位置输入
@@ -71,13 +71,10 @@ public:
         lastX = xpos;
         lastY = ypos;
 
-        if (!wanderMode)//不在游览模式下
-        {
-            if (MouseDown)//只有鼠标按下时才能转动摄像机，否则视角会和鼠标一起转
-                ProcessMouseMovement(xoffset, yoffset);
-        }
-        else
+
+        if (MouseDown || wanderMode)//只有鼠标按下时或者在漫游模式下才捕获鼠标位置
             ProcessMouseMovement(xoffset, yoffset);
+
     }
 
     //根据鼠标输入，更新视线角度，偏航角和俯仰角
