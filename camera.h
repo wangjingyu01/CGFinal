@@ -16,12 +16,6 @@ class Camera
 {
 
 public:
-    float fov;
-    float speed;
-    float sensitivity;
-    vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
-
-
     //相机视野、相机速度、鼠标灵敏度、相机位置
     Camera(float fov = 45.0f, float speed = 2.5f, float sensitivity = 0.05f, vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f)) //相机视野、相机速度、鼠标灵敏度
 
@@ -31,6 +25,13 @@ public:
         this->sensitivity = sensitivity;
         this->cameraPos = cameraPos;
     }
+
+    float fov;
+    float speed;
+    float sensitivity;
+    vec3 cameraPos = vec3(0.0f, 0.0f, 3.0f);
+    vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
+    bool wanderMode = false;//游览模式
 
     //键盘输入
     void processInput(GLFWwindow* window)
@@ -70,8 +71,10 @@ public:
         lastX = xpos;
         lastY = ypos;
 
-        if (MouseDown)//只有鼠标按下时才能转动摄像机，否则视角会和鼠标一起转
+
+        if (MouseDown || wanderMode)//只有鼠标按下时或者在漫游模式下才捕获鼠标位置
             ProcessMouseMovement(xoffset, yoffset);
+
     }
 
     //根据鼠标输入，更新视线角度，偏航角和俯仰角
@@ -122,7 +125,6 @@ public:
     }
 
 private:
-    vec3 cameraFront = vec3(0.0f, 0.0f, -1.0f);
     vec3 cameraUp = vec3(0.0f, 1.0f, 0.0f);
     float deltaTime = 0.0f; // 当前帧与上一帧的时间差
     float lastFrame = 0.0f; // 上一帧的时间
@@ -160,4 +162,3 @@ int sizeH()
     int SCR_HEIGHT = dm.dmPelsHeight;
     return SCR_HEIGHT;
 }
-

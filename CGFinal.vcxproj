@@ -154,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
+    <ClInclude Include="FileSystem.h" />
     <ClInclude Include="glInit.h" />
     <ClInclude Include="include\assimp\aabb.h" />
     <ClInclude Include="include\assimp\ai_assert.h" />
@@ -242,17 +243,14 @@
     <ClInclude Include="include\imgui\imstb_rectpack.h" />
     <ClInclude Include="include\imgui\imstb_textedit.h" />
     <ClInclude Include="include\imgui\imstb_truetype.h" />
+    <ClInclude Include="Mesh.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="shader.h" />
+    <ClInclude Include="shader_s.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="texture.h" />
     <ClInclude Include="ImportData.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="4.2.texture.fs" />
-    <None Include="4.2.texture.vs" />
-    <None Include="box.fs.glsl" />
-    <None Include="box.vs.glsl" />
     <None Include="include\assimp\color4.inl" />
     <None Include="include\assimp\config.h.in" />
     <None Include="include\assimp\material.inl" />
@@ -262,8 +260,16 @@
     <None Include="include\assimp\SmoothingGroups.inl" />
     <None Include="include\assimp\vector2.inl" />
     <None Include="include\assimp\vector3.inl" />
-    <None Include="lightbox.fs.glsl" />
-    <None Include="lightbox.vs.glsl" />
+    <None Include="shader\box.fs.glsl" />
+    <None Include="shader\box.vs.glsl" />
+    <None Include="shader\green.fs.glsl" />
+    <None Include="shader\green.vs.glsl" />
+    <None Include="shader\lightbox.fs.glsl" />
+    <None Include="shader\lightbox.vs.glsl" />
+    <None Include="shader\model.fs.glsl" />
+    <None Include="shader\model.vs.glsl" />
+    <None Include="shader\skybox.fs.glsl" />
+    <None Include="shader\skybox.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="pic\awesomeface.png" />
