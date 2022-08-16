@@ -338,6 +338,9 @@
     <ClInclude Include="shader.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="include\assimp\color4.inl">
@@ -423,5 +426,13 @@
     <Image Include="pic\white.jpg">
       <Filter>pic</Filter>
     </Image>
+    <Image Include="pic\awesomeface.ico">
+      <Filter>资源文件</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CGFinal.rc">
+      <Filter>资源文件</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

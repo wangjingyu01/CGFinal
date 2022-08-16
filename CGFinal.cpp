@@ -73,7 +73,6 @@ int main()
 	{
 		model.push_back(tempmodel[i]);//先进行一步操作，防止一会儿vector越界
 	}
-
 	GLFWwindow* window = glInit(sizeW() * 0.9, sizeH() * 0.9, "CGFinal");
 	glfwSetCursorPosCallback(window, mouse_callback);
 	glfwSetScrollCallback(window, scroll_callback);

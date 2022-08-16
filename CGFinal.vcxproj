@@ -245,6 +245,7 @@
     <ClInclude Include="include\imgui\imstb_truetype.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="model.h" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="shader.h" />
     <ClInclude Include="shader_s.h" />
     <ClInclude Include="stb_image.h" />
@@ -272,6 +273,7 @@
     <None Include="shader\skybox.vs.glsl" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="pic\awesomeface.ico" />
     <Image Include="pic\awesomeface.png" />
     <Image Include="pic\black.jpg" />
     <Image Include="pic\container.jpg" />
@@ -280,6 +282,9 @@
     <Image Include="pic\house1.png" />
     <Image Include="pic\normal.jpg" />
     <Image Include="pic\white.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="CGFinal.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
