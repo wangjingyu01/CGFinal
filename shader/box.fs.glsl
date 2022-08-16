@@ -86,7 +86,7 @@ void main()
         if(style==3)
         {
             fresnel =1-dot(viewDir,Normal);//菲涅尔公式，边缘发光效果
-            fresnel=pow(fresnel,2);//效果强度
+            fresnel=pow(fresnel,3);//效果强度
             result+=vec3 (fresnel)*vec3(0,1,0);//绿色边缘
         }
     }
@@ -127,7 +127,7 @@ void main()
             if(style==3)
             {
                 fresnel =1-dot(viewDir,Normal);//菲涅尔公式，边缘发光效果
-                fresnel=pow(fresnel,2);//效果强度
+                fresnel=pow(fresnel,3);//效果强度
                 result+=vec3 (fresnel)*vec3(0,1,0);
             }
 
@@ -176,7 +176,7 @@ void main()
          if(style==3)
          {
             fresnel =1-dot(viewDir,Normal);//菲涅尔公式，边缘发光效果
-            fresnel=pow(fresnel,2);//效果强度
+            fresnel=pow(fresnel,3);//效果强度
             result+=vec3 (fresnel)*vec3(0,1,0);
          }
     }

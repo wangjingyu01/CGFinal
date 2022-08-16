@@ -262,8 +262,12 @@
     <None Include="include\assimp\vector3.inl" />
     <None Include="shader\box.fs.glsl" />
     <None Include="shader\box.vs.glsl" />
+    <None Include="shader\green.fs.glsl" />
+    <None Include="shader\green.vs.glsl" />
     <None Include="shader\lightbox.fs.glsl" />
     <None Include="shader\lightbox.vs.glsl" />
+    <None Include="shader\model.fs.glsl" />
+    <None Include="shader\model.vs.glsl" />
     <None Include="shader\skybox.fs.glsl" />
     <None Include="shader\skybox.vs.glsl" />
   </ItemGroup>

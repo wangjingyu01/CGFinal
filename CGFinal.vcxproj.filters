@@ -385,6 +385,18 @@
     <None Include="shader\skybox.vs.glsl">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="shader\model.fs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\model.vs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\green.fs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="shader\green.vs.glsl">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="pic\awesomeface.png">
