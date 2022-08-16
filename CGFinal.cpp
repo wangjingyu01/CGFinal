@@ -89,7 +89,6 @@ int main()
 	Shader skyboxShader("shader/skybox.vs.glsl", "shader/skybox.fs.glsl");
 	Shader lightShader("shader/lightbox.vs.glsl", "shader/lightbox.fs.glsl");
 	Shader modelShader("shader/model.vs.glsl", "shader/model.fs.glsl");
-	Shader greenShader("shader/green.vs.glsl", "shader/green.fs.glsl");
 
 	Model ModelMan(modelPath_man);
 	Model ModelCube(modelPath_cube);
@@ -208,7 +207,7 @@ int main()
 						if (modelSelect == modelNum - 1)
 							modelSelect = modelNum - 2;
 						modelNum--;
-						for (int i = 0; i < modelNum; i++)
+						for (int i = 0; i <= modelNum; i++)
 						{
 							a[i].textures_loaded.clear();
 							a[i].meshes.clear();//先清空原来的，否则会有两个mesh。。。
