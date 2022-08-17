@@ -249,7 +249,6 @@
     <ClInclude Include="shader.h" />
     <ClInclude Include="shader_s.h" />
     <ClInclude Include="stb_image.h" />
-    <ClInclude Include="ImportData.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\assimp\color4.inl" />
@@ -263,8 +262,6 @@
     <None Include="include\assimp\vector3.inl" />
     <None Include="shader\box.fs.glsl" />
     <None Include="shader\box.vs.glsl" />
-    <None Include="shader\green.fs.glsl" />
-    <None Include="shader\green.vs.glsl" />
     <None Include="shader\lightbox.fs.glsl" />
     <None Include="shader\lightbox.vs.glsl" />
     <None Include="shader\model.fs.glsl" />
@@ -279,7 +276,6 @@
     <Image Include="pic\container.jpg" />
     <Image Include="pic\container2.png" />
     <Image Include="pic\container2_specular.png" />
-    <Image Include="pic\house1.png" />
     <Image Include="pic\normal.jpg" />
     <Image Include="pic\white.jpg" />
   </ItemGroup>

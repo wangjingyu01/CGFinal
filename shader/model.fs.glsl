@@ -16,7 +16,9 @@ void main()
     float fresnel=0;
     if(isselected)
     {
-        final+=vec3(0,0.2,0);
+fresnel =1-dot(viewDir,Normal);//菲涅尔公式，边缘发光效果
+            fresnel=pow(fresnel,3);//效果强度
+            final+=vec3 (fresnel)*vec3(0,1,0);
     }
     FragColor = vec4(final,1);
 }

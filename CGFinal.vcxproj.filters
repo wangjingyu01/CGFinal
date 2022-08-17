@@ -53,9 +53,6 @@
     <ClInclude Include="include\glad\glad.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="ImportData.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="model.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -394,21 +391,12 @@
     <None Include="shader\model.vs.glsl">
       <Filter>资源文件</Filter>
     </None>
-    <None Include="shader\green.fs.glsl">
-      <Filter>资源文件</Filter>
-    </None>
-    <None Include="shader\green.vs.glsl">
-      <Filter>资源文件</Filter>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="pic\awesomeface.png">
       <Filter>pic</Filter>
     </Image>
     <Image Include="pic\container.jpg">
-      <Filter>pic</Filter>
-    </Image>
-    <Image Include="pic\house1.png">
       <Filter>pic</Filter>
     </Image>
     <Image Include="pic\container2.png">
